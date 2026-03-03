@@ -18,5 +18,5 @@ mybatis-plus:
       id-type: auto
 
 jwt:
-  secret: course-system-secret-key-2024
+  secret: course-system-secret-key-2024-this-is-a-very-long-secret-key-for-jwt
   expiration: 86400000
