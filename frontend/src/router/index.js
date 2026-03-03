@@ -1,8 +1,8 @@
 import Vue from 'vue'
 import VueRouter from 'vue-router'
-import Login from './views/Login.vue'
-import Courses from './views/Courses.vue'
-import MyCourses from './views/MyCourses.vue'
+import Login from '@/views/Login.vue'
+import Courses from '@/views/Courses.vue'
+import MyCourses from '@/views/MyCourses.vue'
 
 Vue.use(VueRouter)
 
