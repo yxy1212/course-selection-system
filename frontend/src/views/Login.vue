@@ -37,6 +37,7 @@ export default {
           localStorage.setItem('username', res.data.data.username)
           localStorage.setItem('role', res.data.data.role)
           localStorage.setItem('realName', res.data.data.realName)
+          this.$emit('login-success')
           this.$router.push('/courses')
         } else {
           alert(res.data.message)

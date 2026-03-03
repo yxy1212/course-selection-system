@@ -3,7 +3,7 @@
     <div class="toolbar">
       <input v-model="keyword" placeholder="搜索课程..." @keyup.enter="search" />
       <button @click="search" class="btn-search">搜索</button>
-      <button v-if="isTeacher" @click="showAddDialog = true" class="btn-add">创建课程</button>
+      <button v-if="isTeacher" @click="openAddDialog" class="btn-add">创建课程</button>
     </div>
     
     <div class="course-list">
@@ -35,6 +35,33 @@
       <span>第 {{ page }} 页</span>
       <button @click="nextPage" :disabled="courses.length < size">下一页</button>
     </div>
+
+    <!-- 创建课程对话框 -->
+    <div v-if="showAddDialog" class="dialog-overlay" @click="showAddDialog = false">
+      <div class="dialog" @click.stop>
+        <h3>创建课程</h3>
+        <div class="form-group">
+          <label>课程名称</label>
+          <input v-model="newCourse.name" placeholder="请输入课程名称" />
+        </div>
+        <div class="form-group">
+          <label>课程描述</label>
+          <textarea v-model="newCourse.description" placeholder="请输入课程描述"></textarea>
+        </div>
+        <div class="form-group">
+          <label>学分</label>
+          <input v-model.number="newCourse.credits" type="number" placeholder="请输入学分" />
+        </div>
+        <div class="form-group">
+          <label>容量</label>
+          <input v-model.number="newCourse.capacity" type="number" placeholder="请输入容量" />
+        </div>
+        <div class="dialog-buttons">
+          <button @click="createCourse" class="btn-primary">创建</button>
+          <button @click="showAddDialog = false" class="btn-secondary">取消</button>
+        </div>
+      </div>
+    </div>
   </div>
 </template>
 
@@ -52,7 +79,13 @@ export default {
       size: 10,
       userId: null,
       userRole: '',
-      showAddDialog: false
+      showAddDialog: false,
+      newCourse: {
+        name: '',
+        description: '',
+        credits: 0,
+        capacity: 50
+      }
     }
   },
   computed: {
@@ -93,6 +126,28 @@ export default {
     async nextPage() {
       this.page++
       this.loadCourses()
+    },
+    openAddDialog() {
+      this.newCourse = { name: '', description: '', credits: 0, capacity: 50 }
+      this.showAddDialog = true
+    },
+    async createCourse() {
+      if (!this.newCourse.name) {
+        alert('请输入课程名称')
+        return
+      }
+      try {
+        const res = await courses.create(this.newCourse)
+        if (res.data.code === 200) {
+          alert('创建成功')
+          this.showAddDialog = false
+          this.loadCourses()
+        } else {
+          alert(res.data.message)
+        }
+      } catch (e) {
+        alert('创建失败')
+      }
     },
     async selectCourse(courseId) {
       const res = await selections.select(courseId)
@@ -170,4 +225,42 @@ export default {
   border-radius: 4px;
   cursor: pointer;
 }
+
+/* 对话框样式 */
+.dialog-overlay {
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: rgba(0,0,0,0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+.dialog {
+  background: white;
+  padding: 30px;
+  border-radius: 8px;
+  width: 400px;
+}
+.dialog h3 { margin-bottom: 20px; color: #333; }
+.dialog .form-group { margin-bottom: 15px; }
+.dialog .form-group label { display: block; margin-bottom: 5px; color: #666; }
+.dialog .form-group input,
+.dialog .form-group textarea {
+  width: 100%;
+  padding: 8px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+}
+.dialog .form-group textarea { height: 80px; resize: none; }
+.dialog-buttons { display: flex; gap: 10px; margin-top: 20px; }
+.dialog-buttons button {
+  flex: 1;
+  padding: 10px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+.dialog .btn-primary { background: #409eff; color: white; }
+.dialog .btn-secondary { background: #909399; color: white; }
 </style>
