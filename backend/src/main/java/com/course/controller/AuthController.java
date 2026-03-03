@@ -5,6 +5,7 @@ import com.course.dto.LoginRequest;
 import com.course.dto.LoginResponse;
 import com.course.entity.User;
 import com.course.service.AuthService;
+import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -26,7 +27,11 @@ public class AuthController {
     }
     
     @GetMapping("/info")
-    public Result<User> getUserInfo(@RequestHeader("X-User-Id") Long userId) {
+    public Result<User> getUserInfo(HttpServletRequest request) {
+        Long userId = (Long) request.getAttribute("userId");
+        if (userId == null) {
+            return Result.error("请先登录");
+        }
         return Result.success(authService.getUserById(userId));
     }
 }

@@ -37,12 +37,10 @@ public class JwtInterceptor implements HandlerInterceptor {
                 String role = (String) claims.get("role");
                 String username = (String) claims.get("username");
                 
+                // 设置到 request attribute，供 Controller 使用
                 request.setAttribute("userId", Long.parseLong(userId));
                 request.setAttribute("role", role);
                 request.setAttribute("username", username);
-                
-                response.setHeader("X-User-Id", userId);
-                response.setHeader("X-User-Role", role);
                 
             } catch (Exception e) {
                 // Token 无效，继续但不设置用户信息

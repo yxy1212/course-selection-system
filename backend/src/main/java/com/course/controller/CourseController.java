@@ -4,10 +4,9 @@ import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.course.common.Result;
 import com.course.entity.Course;
 import com.course.service.CourseService;
+import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.Map;
 
 @RestController
 @RequestMapping("/api/courses")
@@ -32,10 +31,15 @@ public class CourseController {
     @PostMapping
     public Result<Course> createCourse(
             @RequestBody Course course,
-            @RequestHeader("X-User-Id") Long teacherId,
-            @RequestHeader("X-User-Role") String role) {
+            HttpServletRequest request) {
+        Long teacherId = (Long) request.getAttribute("userId");
+        String role = (String) request.getAttribute("role");
+        
+        if (teacherId == null) {
+            return Result.error("请先登录");
+        }
         if (!"TEACHER".equals(role) && !"ADMIN".equals(role)) {
-            return Result.error("无权限创建课程");
+            return Result.error("无权限创建课程，只有教师或管理员可以创建");
         }
         return courseService.createCourse(course, teacherId);
     }
@@ -44,8 +48,8 @@ public class CourseController {
     public Result<Course> updateCourse(
             @PathVariable Long id,
             @RequestBody Course course,
-            @RequestHeader("X-User-Id") Long userId,
-            @RequestHeader("X-User-Role") String role) {
+            HttpServletRequest request) {
+        Long userId = (Long) request.getAttribute("userId");
         course.setId(id);
         return courseService.updateCourse(course, userId);
     }
@@ -53,8 +57,9 @@ public class CourseController {
     @DeleteMapping("/{id}")
     public Result<Void> deleteCourse(
             @PathVariable Long id,
-            @RequestHeader("X-User-Id") Long userId,
-            @RequestHeader("X-User-Role") String role) {
+            HttpServletRequest request) {
+        Long userId = (Long) request.getAttribute("userId");
+        String role = (String) request.getAttribute("role");
         return courseService.deleteCourse(id, userId, role);
     }
 }
